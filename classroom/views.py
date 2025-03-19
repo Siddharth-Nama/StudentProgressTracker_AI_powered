@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout,update_session_auth_hash
 from django.http import HttpResponseRedirect,HttpResponse
 from classroom import models
-from classroom.models import StudentsInClass,StudentMarks,ClassAssignment,SubmitAssignment,Student,Teacher
+from classroom.models import StudentsInClass,StudentMarks,ClassAssignment,SubmitAssignment,Student,Teacher,StudentActivity
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Q
 from django.core.mail import send_mail
@@ -375,6 +375,30 @@ def assignment_list(request):
     teacher = request.user.Teacher
     return render(request,'classroom/assignment_list.html',{'teacher':teacher})
 
+## For Open the assignments.
+
+@login_required
+def open_assignment(request, id=None):
+    obj = get_object_or_404(ClassAssignment, id=id)
+    
+    # Get file extension
+    filename = obj.assignment.name
+    extension = filename.split('.')[-1].lower()
+    
+    # Convert to absolute URL
+    file_url = request.build_absolute_uri(obj.assignment.url)
+
+    context = {
+        "assignment": obj,
+        "file_type": extension,
+        "file_url": file_url,  # ✅ Pass absolute URL to template
+    }
+    print('File URL:', file_url)
+
+    # Use a template that can handle different file types
+    template = "classroom/view_assignment.html"
+    return render(request, template, context)
+
 ## For updating the assignments later.
 @login_required
 def update_assignment(request,id=None):
@@ -461,7 +485,7 @@ def index(request):
 		subject = request.POST['subject']
 		message = request.POST['message']
 
-		message = name + " with the email, " + email + ", sent the following message:\n\n" + message;
+		message = name + " with the email, " + email + ", sent the following message:\n\n" + message
 
 		send_mail(subject,
 		 message,
@@ -470,3 +494,66 @@ def index(request):
 		 fail_silently=False)
 	return render(request, 'classroom/index.html')
 
+
+
+from django.http import JsonResponse
+from django.utils.timezone import now
+import json
+
+# def log_activity(request):
+#     if request.method == "POST":
+#         data = json.loads(request.body.decode("utf-8"))
+#         student = request.user  # Ensure student is logged in
+#         page = data.get("page")
+#         time_spent = data.get("timeSpent")
+
+#         # Store in database
+#         StudentActivity.objects.create(
+#             student=student,
+#             page=page,
+#             time_spent=time_spent,
+#             date=now()
+#         )
+
+#         return JsonResponse({"status": "success"})
+    
+
+from django.shortcuts import render
+from .models import StudentActivity
+from django.utils.timezone import datetime
+
+def student_activity_report(request):
+    student = request.user
+    start_date = request.GET.get("start_date", "2024-01-01")  # Example
+    end_date = request.GET.get("end_date", str(datetime.today().date()))
+
+    activities = StudentActivity.objects.filter(
+        student=student, date__range=[start_date, end_date]
+    )
+
+    return render(request, "activity_report.html", {"activities": activities})
+
+
+from django.shortcuts import render
+from classroom.models import StudentActivity
+
+def teacher_student_activity(request):
+    if request.user.is_teacher:
+        activities = StudentActivity.objects.all()
+        return render(request, "classroom/teacher_student_activity.html", {"activities": activities})
+    else:
+        return HttpResponse("Unauthorized", status=403)
+
+
+
+from django.shortcuts import render
+from .models import StudentActivity
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def teacher_dashboard(request):
+    # if hasattr(request.user, 'role') and request.user.role == "teacher":
+        students_activities = StudentActivity.objects.all().order_by('-date')
+        return render(request, 'classroom/teacher_dashboard.html', {'students_activities': students_activities})
+    # else:
+    #     return render(request, 'classroom/not_allowed.html')  # Show error if not a teacher

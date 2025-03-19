@@ -1,0 +1,22 @@
+{% extends 'classroom/base.html' %}
+{% block content %}
+ 
+<h2>Student Activity</h2>
+<table border="1">
+    <tr>
+        <th>Student</th>
+        <th>Page Visited</th>
+        <th>Time Spent (Seconds)</th>
+        <th>Date</th>
+    </tr>
+    {% for activity in activities %}
+    <tr>
+        <td>{{ activity.student.name }}</td>
+        <td>{{ activity.page }}</td>
+        <td>{{ activity.time_spent }}</td>
+        <td>{{ activity.date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

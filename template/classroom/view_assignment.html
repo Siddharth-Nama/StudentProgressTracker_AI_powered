@@ -1,0 +1,50 @@
+{% extends 'classroom/base.html' %}
+{% block content %}
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.305/pdf.min.js"></script>
+
+<div class="container">
+    <div class="row">
+        <ol class="col-12 breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'classroom:assignment_list' %}">Assignment List</a></li>
+            <li class="breadcrumb-item active">View Assignment</li>
+        </ol>
+    </div>
+
+    <div class="section-heading">
+        <h2>View Assignment</h2>
+        <div class="line-dec"></div>
+    </div>
+
+    <div class="jumbotron bg-dark text-white" style="padding: 0px;">
+        {% if assignment.assignment %}
+            {% if file_type == 'pdf' %}
+                <!-- PDF Viewer -->
+                <iframe src="https://mozilla.github.io/pdf.js/web/viewer.html?file={{ file_url }}" width="100%" height="600px"></iframe>
+
+            {% elif file_type == "mp4" or file_type == "avi" or file_type == "mov" or file_type == "wmv" or file_type == "webm" or file_type == "mkv" %}
+                <!-- Video Player -->
+                <video width="100%" height="500px" controls controlsList="nodownload">
+                    <source src="{{ assignment.assignment.url }}" type="video/{{ file_type }}">
+                    Your browser does not support the video tag.
+                </video>
+
+            {% elif file_type == "jpg" or file_type == "jpeg" or file_type == "png" or file_type == "gif" or file_type == "svg" or file_type == "webp" %}
+                <!-- Image Preview -->
+                <div style="max-height: 500px; display: flex; justify-content: center; align-items: center;">
+                    <img src="{{ assignment.assignment.url }}" alt="Assignment Image" style="max-width: 100%; max-height: 100%; object-fit: contain;" class="img-fluid rounded">
+                </div>
+
+            {% else %}
+                <!-- Download Link for Unsupported Files -->
+                <p>File type not supported for preview. 
+                    <a href="{{ assignment.assignment.url }}" class="btn btn-primary" download>Download File</a>
+                </p>
+            {% endif %}
+        {% else %}
+            <p>No file attached</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

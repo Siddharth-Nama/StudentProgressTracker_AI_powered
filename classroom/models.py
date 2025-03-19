@@ -120,7 +120,19 @@ class SubmitAssignment(models.Model):
     submit = models.FileField(upload_to='Submission')
 
     def __str__(self):
-        return "Submitted"+str(self.submitted_assignment.assignment_name)
+        return f"Submitted{str(self.submitted_assignment.assignment_name)}"
 
     class Meta:
         ordering = ['-created_at']
+
+
+
+
+
+
+class StudentActivity(models.Model):
+    student = models.ForeignKey(Student,related_name='student_activity', on_delete=models.CASCADE)
+    time_spent = models.JSONField(default=dict)  # Stores page names as keys and time spent as values
+    date = models.DateField(auto_now_add=True)
+    def __str__(self):
+        return f"{self.student} - {self.time_spent} - {self.date}"

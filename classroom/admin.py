@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Student, StudentMarks, Teacher, StudentsInClass, ClassNotice, MessageToTeacher, ClassAssignment, SubmitAssignment
+from .models import User, Student, StudentMarks, Teacher, StudentsInClass, ClassNotice, MessageToTeacher, ClassAssignment, SubmitAssignment, StudentActivity
 # Register your models here.
 
 admin.site.register(User, UserAdmin)
@@ -12,3 +12,4 @@ admin.site.register(ClassNotice)
 admin.site.register(MessageToTeacher)
 admin.site.register(ClassAssignment)
 admin.site.register(SubmitAssignment)
+admin.site.register(StudentActivity)

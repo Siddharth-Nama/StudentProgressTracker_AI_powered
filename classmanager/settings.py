@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+import mimetypes
+mimetypes.add_type("video/mp4", ".mp4", True)
+mimetypes.add_type("video/x-matroska", ".mkv", True)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -36,6 +40,22 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
+from corsheaders.defaults import default_headers
+
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (use only in development)
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'Access-Control-Allow-Origin',
+]
+
+# OR restrict to specific domains
+CORS_ALLOWED_ORIGINS = [
+    "https://mozilla.github.io",  # Allow PDF.js
+    "http://127.0.0.1:8000",  # Your local Django server
+]
+CORS_ALLOW_METHODS = ["*"]
+CORS_ALLOW_CREDENTIALS = True
+
+
 ALLOWED_HOSTS = [ '*' ]
 
 AUTH_USER_MODEL = 'classroom.User'
@@ -43,6 +63,7 @@ AUTH_USER_MODEL = 'classroom.User'
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,14 +75,20 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Keep CORS at the top for handling cross-origin requests
+    'django.middleware.security.SecurityMiddleware',  # Essential for security
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Ensure sessions work before tracking time
+
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Required before custom middleware
+
+    'classroom.middleware.PageTimeTrackingMiddleware',  # ✅ Move this AFTER authentication and BEFORE CommonMiddleware
+
+    'django.middleware.common.CommonMiddleware',  # Handles URL normalization, ETags, etc.
+    # 'django.middleware.csrf.CsrfViewMiddleware',  # Disabled, but should be enabled in production
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'classmanager.urls'
 
@@ -136,3 +163,11 @@ STATICFILES_DIRS = [STATIC_DIR,]
 
 MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
+# Set session to expire after 15 minutes (900 seconds)
+SESSION_COOKIE_AGE = 36000  # Time in seconds (adjust as needed)
+
+# Make session expire when the browser is closed
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  
+
+# Ensure Django updates session expiry on each request
+SESSION_SAVE_EVERY_REQUEST = True  

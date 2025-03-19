@@ -1,6 +1,7 @@
 from django.urls import path
 from classroom import views
-
+from django.conf import settings
+from django.conf.urls.static import static
 app_name = 'classroom'
 
 urlpatterns =[
@@ -30,9 +31,16 @@ urlpatterns =[
     path('upload_assignment/',views.upload_assignment,name="upload_assignment"),
     path('class_assignment/',views.class_assignment,name="class_assignment"),
     path('assignment_list/',views.assignment_list,name="assignment_list"),
+    path('open_assignment/<int:id>/',views.open_assignment,name="open_assignment"),
     path('update_assignment/<int:id>/',views.update_assignment,name="update_assignment"),
     path('assignment_delete/<int:id>/',views.assignment_delete,name="assignment_delete"),
     path('submit_assignment/<int:id>/',views.submit_assignment,name="submit_assignment"),
     path('submit_list/',views.submit_list,name="submit_list"),
     path('change_password/',views.change_password,name="change_password"),
+    # path("log-activity", views.log_activity, name="log-activity"),
+    path("activity-report", views.student_activity_report, name="activity-report"),
+    path("teacher/student-activity/", views.teacher_student_activity, name="teacher_student_activity"),
+    path('teacher-dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

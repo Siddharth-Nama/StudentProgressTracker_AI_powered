@@ -1,6 +1,6 @@
 {% extends 'classroom/base.html' %}
 {% block content %}
-
+ 
 
 <div class="container ">
 		<div class="row">
@@ -43,7 +43,8 @@
           <th scope="row">{{ forloop.counter }}</th>
           <td>{{ assignment.assignment_name }}</td>
           <td>{{ assignment.created_at }}</td>
-          <td><a href="{{ assignment.assignment.url }}" class="btn btn-primary" target="_blank">Download</a></td>
+          <!-- <td><a href="{{ assignment.assignment.url }}" class="btn btn-primary" target="_blank">Download</a></td> -->
+          <td><a href="{% url 'classroom:open_assignment' id=assignment.id %}" class="btn btn-primary">Open</a></td>
           <td><a href="{% url 'classroom:update_assignment' id=assignment.id %}" class="btn btn-primary">Update</a></td>
           <td><a href="{% url 'classroom:assignment_delete' id=assignment.id %}" class="btn btn-danger">Delete</a></td>
         </tr>

@@ -1,0 +1,27 @@
+{% extends 'classroom/base.html' %}
+{% block content %}
+<h2>Student Activity Report</h2>
+<form method="get">
+    <label>Start Date:</label>
+    <input type="date" name="start_date">
+    <label>End Date:</label>
+    <input type="date" name="end_date">
+    <button type="submit">Filter</button>
+</form>
+
+<table border="1">
+    <tr>
+        <th>Page</th>
+        <th>Time Spent (seconds)</th>
+        <th>Date</th>
+    </tr>
+    {% for activity in activities %}
+    <tr>
+        <td>{{ activity.page }}</td>
+        <td>{{ activity.time_spent }}</td>
+        <td>{{ activity.date }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

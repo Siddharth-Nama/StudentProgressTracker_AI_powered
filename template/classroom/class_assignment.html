@@ -1,6 +1,6 @@
 {% extends 'classroom/base.html' %}
 {% block content %}
-
+ 
 <div class="container ">
 		<div class="row">
             <ol class="col-12 breadcrumb">
@@ -44,7 +44,7 @@
           <td>{{ assignment.assignment_name }}</td>
           <td>{{ assignment.teacher }}</td>
           <td>{{ assignment.created_at }}</td>
-          <td><a href="{{ assignment.assignment.url }}" class="btn btn-primary" target="_blank">Download</a></td>
+          <td><a href="{% url 'classroom:open_assignment' id=assignment.id%}" class="btn btn-primary">Open</a></td>
           {% if assignment in assignment_list %}
             <td>Submitted</td>
           {% else %}

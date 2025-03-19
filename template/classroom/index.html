@@ -1,7 +1,7 @@
 {% extends 'classroom/base.html' %}
 {% load static %}
 {% block content %}
-
+ 
 {% if messages %}
 <div class="alert alert-primary alert-dismissible fade show" role="alert">
   {% for message in messages %}
@@ -130,136 +130,6 @@
       </div>
     </div>
 
-<hr class="bg-secondary">
 
-
-        <div class="container">
-          <div class="section-heading">
-            <h2>Contact Us</h2>
-            <div class="line-dec"></div>
-            <span>
-              Interested in collaborating or investing?</span>
-			  <span><br>
-					I’m always open to discussing product design work or partnership opportunities.</span>
-                <br>
-                <br>
-          </div>
-
-          <div class="row">
-		  	<div class="col-12">
-	<iframe class="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3883.5330441266647!2d74.78288441479593!3d13.254595190670685!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bbcaffcb81452c5%3A0xb18b6b77e04b088b!2sShri%20Madhwa%20Vadiraja%20Institute%20of%20Technology%20and%20Management!5e0!3m2!1sen!2sin!4v1598341224585!5m2!1sen!2sin"></iframe>
-	</div>
-	</div>
-		<br>
-		<hr class="bg-secondary">
-<p class="text-center w-responsive mx-auto mb-5">Do you have any questions? Please do not hesitate to contact us directly. Our team will come back to you within
-        a matter of hours to help you.</p>
-             <form id="contact" method="post" action="{% url 'classroom:index' %}">
-            	{% csrf_token %}
-               <div class="row">
-                    <div class="col-md-6">
-                      <fieldset>
-                        <input
-                          name="name"
-                          type="text"
-                          class="form-control"
-                          id="name"
-                          placeholder="Your name..."
-                          required=""
-                        />
-                      </fieldset>
-                    </div>
-                    <div class="col-md-6">
-                      <fieldset>
-                        <input
-                          name="email"
-                          type="text"
-                          class="form-control"
-                          id="email"
-                          placeholder="Your email..."
-                          required=""
-                        />
-                      </fieldset>
-                    </div>
-                    <div class="col-md-12">
-                      <fieldset>
-                        <input
-                          name="subject"
-                          type="text"
-                          class="form-control"
-                          id="subject"
-                          placeholder="Subject..."
-                          required=""
-                        />
-                      </fieldset>
-                    </div>
-                    <div class="col-md-12">
-                      <fieldset>
-                        <textarea
-                          name="message"
-                          rows="6"
-                          class="form-control"
-                          id="message"
-                          placeholder="Your message..."
-                          required=""
-                        ></textarea>
-                      </fieldset>
-                    </div>
-                    <div class="col-md-12">
-                      <fieldset>
-						<button type="submit" id="form-submit" class="button border-neon" >
-                          Start a Conversation
-						</button>
-                      </fieldset>
-                    </div>
-                  </div>
-
-            </form>
-              </div>
-<br>
-
-
-<hr class="bg-secondary">
-
-    <div class="container">
-                    <div class="row text-center">
-
-                    <div class="social-network col-12  text-center">
-                <h2>Follow Us On</h2>
-                  <br>
-                <span>
-                  <a href="mailto:ab007shetty@gmail.com?subject=Mail-from-Portfolio"><i class="fa fa-envelope"></i></a>
-                </span>
-                <span>
-                  <a href="https://twitter.com/ab007shetty/" target="blank"><i class="fa fa-twitter"></i></a>
-                </span>
-                <span>
-                  <a href="https://www.linkedin.com/in/anirudha-b-shetty-29a338111/" target="blank"><i class="fa fa-linkedin"></i></a>
-                </span>
-                <span>
-                  <a href="https://www.instagram.com/a.b.shetty/" target="blank"><i class="fa fa-instagram"></i></a>
-                </span>
-                <span>
-                  <a href="https://github.com/ab007shetty/" target="blank"><i class="fa fa-github"></i></a>
-                </span>
-                <br>
-                <br>
-                 <div class="btn-group text-center col-12 col-sm-4" role="group">
-                    <a role="button" class="btn btn-success" href=" https://wa.me/919448936489?text=I%20Love%20You." target="blank"><i class="fa fa-whatsapp"></i> WhatsApp</a>
-
-                    <a role="button" class="btn btn-info" href="tel:+918150071512"> <i class="fa fa-phone"></i> Call</a>
-                    <a role="button" class="btn btn-primary" href="mailto:anirudha.17me010@sode-edu.in"> <i class="fa fa-envelope-o"></i> Email</a>
-                </div>
-
-				</div>
-
-           </div>
-		   <hr>
-           <div class="row justify-content-center">
-                     <div class="col-auto">
-                    <p> &copy; 2020 E-Classroom All Rights Reserved. </p>
-                </div>
-           </div>
-        </div>
   </body>
 {% endblock %}
