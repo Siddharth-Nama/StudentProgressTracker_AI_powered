@@ -26,12 +26,12 @@
 </div>
 {% endif %}
  <!-- Search & Date Filter -->
- <form method="GET" action="{% url 'classroom:teacher_dashboard' %}" class="searchme">
+ <form method="GET" action="{% url 'classroom:student_progress_dashboard' %}" class="searchme">
     <div class="input-group">
         <input class="form-control" type="search" name="q" placeholder="Search Student by Roll No..." value="{{ request.GET.q }}">
         <input class="form-control" type="date" name="date" value="{{ request.GET.date }}">
         <button  class="input-group-text lime lighten-2 btn-outline-success " type="submit"><i class="fas fa-search text-grey" aria-hidden="true"></i></button>
-<input type="submit" value="Cancel" class="btn btn-danger pull-right" onclick="window.location.href='{% url 'classroom:teacher_dashboard' %}'; return false;">
+<input type="submit" value="Cancel" class="btn btn-danger pull-right" onclick="window.location.href='{% url 'classroom:student_progress_dashboard' %}'; return false;">
 </div>
 </form>
 
