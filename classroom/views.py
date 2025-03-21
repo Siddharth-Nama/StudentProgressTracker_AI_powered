@@ -635,3 +635,29 @@ def student_progress_dashboard(request):
         'student_name': student_name,
         'performance_prediction': performance_prediction,
     })
+
+
+
+@login_required
+def teacher_dashboard(request):
+    today_student_activity = StudentActivity.objects.filter(date=datetime.today())
+    print('--------------today_student_activity--------------------',today_student_activity)
+    Rating = {}
+    
+    for activity in today_student_activity:
+        if hasattr(activity, 'time_spent') and activity.time_spent:
+            total_time = 0
+            for page, time in activity.time_spent.items():
+                total_time += time
+            if total_time > 7200:
+                rating = "Good"
+            elif total_time > 3600:
+                rating = "Average"
+            else:
+                rating = "Poor"
+            Rating[activity.student.roll_no] = rating  # Assign rating to student's roll_no
+    
+    print('---------rating------------',Rating)
+
+    return render(request, 'classroom/teacher_dashboard.html', {'today_student_activity': today_student_activity, 'Rating': Rating, 'total': len(Rating)})
+
