@@ -39,7 +39,7 @@ class PageTimeTrackingMiddleware(MiddlewareMixin):
 
         start_time = request.session.get('start_time')  # Avoid KeyError
         if start_time:
-            elapsed_time = round((time.time() - start_time)*1000, 2)  # Calculate time spent correctly
+            elapsed_time = round((time.time() - start_time)*900, 2)  # Calculate time spent correctly
             print(f"Elapsed time: {elapsed_time} seconds")  # Debugging
 
             page_name = request.path  # Get the current page URL

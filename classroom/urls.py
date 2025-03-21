@@ -41,6 +41,7 @@ urlpatterns =[
     path("activity-report", views.student_activity_report, name="activity-report"),
     path("teacher/student-activity/", views.teacher_student_activity, name="teacher_student_activity"),
     path('teacher-dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('student-progress-dashboard/', views.student_progress_dashboard, name='student_progress_dashboard'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

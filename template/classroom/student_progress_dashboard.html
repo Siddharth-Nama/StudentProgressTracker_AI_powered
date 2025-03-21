@@ -1,0 +1,182 @@
+{% extends 'classroom/base.html' %}
+{% block content %}
+
+<div class="container ">
+    <div class="row">
+        <ol class="col-12 breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active">Students Progress Tracker</li>
+        </ol>
+
+    </div>
+
+   <div class="section-heading">
+        <h2>Student Activities</h2>
+        <div class="line-dec"></div>
+      </div>
+
+{% if messages %}
+<div class="alert alert-primary alert-dismissible fade show" role="alert">
+{% for message in messages %}
+  <div class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %}">{{ message|safe }}</div>
+{% endfor %}
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+</div>
+{% endif %}
+ <!-- Search & Date Filter -->
+ <form method="GET" action="{% url 'classroom:teacher_dashboard' %}" class="searchme">
+    <div class="input-group">
+        <input class="form-control" type="search" name="q" placeholder="Search Student by Roll No..." value="{{ request.GET.q }}">
+        <input class="form-control" type="date" name="date" value="{{ request.GET.date }}">
+        <button  class="input-group-text lime lighten-2 btn-outline-success " type="submit"><i class="fas fa-search text-grey" aria-hidden="true"></i></button>
+<input type="submit" value="Cancel" class="btn btn-danger pull-right" onclick="window.location.href='{% url 'classroom:teacher_dashboard' %}'; return false;">
+</div>
+</form>
+
+
+{% if students_activities %}
+        <!-- Performance Prediction -->
+        <h3 class="mt-4">{{student_name}}'s Performance Overview</h3>
+        <p>Student Performance: <strong>{{ performance_prediction }}</strong></p>
+
+        <div>
+            <div style="display: flex; gap: 20px; justify-content: center; align-items: center; margin: 0px;">
+                <!-- Bar Chart -->
+                <canvas id="timeSpentChart" style="width: 40%; max-width: 600px; height: auto; max-height: 600px;"></canvas>
+            
+                <!-- Pie Chart -->
+                <canvas id="activityDistributionChart" style="width: 40%; max-width: 600px; height: auto; max-height: 600px;"></canvas>
+            </div>
+            
+        <!-- Student Activity Data (Hidden for Chart Processing) -->
+        <script>
+            var urlMapping = {
+            "/": "Home Page",
+            "/classroom/": "Dashboard",
+            "/classroom/signup/": "Signup Page",
+            "/classroom/signup/student_signup/": "Student Signup",
+            "/classroom/signup/teacher_signup/": "Teacher Signup",
+            "/classroom/login/": "Login Page",
+            "/classroom/logout/": "Logout",
+            "/classroom/student/{id}/": "Student Profile",
+            "/classroom/teacher/{id}/": "Teacher Profile",
+            "/classroom/update/student/{id}/": "Update Student",
+            "/classroom/update/teacher/{id}/": "Update Teacher",
+            "/classroom/student/{id}/enter_marks": "Enter Marks",
+            "/classroom/student/{id}/marks_list": "Marks List",
+            "/classroom/marks/{id}/update": "Update Marks",
+            "/classroom/student/{id}/add": "Add Student",
+            "/classroom/student_added/": "Student Added",
+            "/classroom/students_list/": "Students List",
+            "/classroom/teachers_list/": "Teachers List",
+            "/classroom/teacher/class_students_list": "Class Students",
+            "/classroom/student/{id}/all_marks": "All Marks List",
+            "/classroom/student/{id}/message": "Write Message",
+            "/classroom/teacher/{id}/messages_list": "Messages List",
+            "/classroom/teacher/write_notice": "Write Notice",
+            "/classroom/student/{id}/class_notice": "Class Notice",
+            "/classroom/upload_assignment/": "Upload Assignment",
+            "/classroom/class_assignment/": "Class Assignment",
+            "/classroom/assignment_list/": "Assignment List",
+            "/classroom/open_assignment/{id}/": "Open Assignment",
+            "/classroom/update_assignment/{id}/": "Update Assignment",
+            "/classroom/assignment_delete/{id}/": "Delete Assignment",
+            "/classroom/submit_assignment/{id}/": "Submit Assignment",
+            "/classroom/submit_list/": "Submission List",
+            "/classroom/change_password/": "Change Password",
+            "/classroom/activity-report": "Activity Report",
+            "/classroom/teacher/student-activity/": "Student Activity",
+            "/classroom/teacher-dashboard/": "Teacher Dashboard",
+            "/accounts/login/": "Login",
+            "/accounts/logout/": "Logout",
+            "/accounts/password_change/": "Password Change",
+            "/accounts/password_change/done/": "Password Change Done",
+            "/accounts/password_reset/": "Password Reset",
+            "/accounts/password_reset/done/": "Password Reset Done",
+            "/accounts/reset/{uid}/{token}/": "Password Reset Confirm",
+            "/accounts/reset/done/": "Password Reset Complete"
+            };
+        </script>
+        
+        <script>
+            var pageLabels = [];
+            var pageTimeSpentData = {};
+        
+            {% for activity in students_activities %}
+            {% for page, time in activity.time_spent.items %}
+                var pageName = urlMapping["{{ page }}"] || "{{ page }}";
+                if (!pageTimeSpentData[pageName]) {
+                pageTimeSpentData[pageName] = 0;
+                }
+                pageTimeSpentData[pageName] += {{ time }};
+            {% endfor %}
+            {% endfor %}
+        
+            // Convert pageTimeSpentData to arrays for Bar Chart
+            var pageLabels = Object.keys(pageTimeSpentData);
+            var pageValues = Object.values(pageTimeSpentData);
+        
+            // Load Chart.js
+            document.addEventListener("DOMContentLoaded", function () {
+                var ctx1 = document.getElementById('timeSpentChart').getContext('2d');
+                var ctx2 = document.getElementById('activityDistributionChart').getContext('2d');
+        
+                // Bar Chart - Time spent on each page
+                new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: pageLabels,
+                        datasets: [{
+                            label: 'Time Spent on Each Page (seconds)',
+                            data: pageValues,
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Time (seconds)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Page'
+                                }
+                            }
+                        }
+                    }
+                });
+        
+                // Pie Chart - Time distribution per page
+                new Chart(ctx2, {
+                    type: 'pie',
+                    data: {
+                        labels: pageLabels,
+                        datasets: [{
+                            label: 'Time Spent per Page',
+                            data: pageValues,
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9966FF']
+                        }]
+                    }
+                });
+            });
+        </script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% else %}
+        <p>No student activity available.</p>
+    {% endif %}
+
+</div>
+
+{% endblock %}

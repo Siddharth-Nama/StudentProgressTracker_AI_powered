@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout,update_session_auth_hash
 from django.http import HttpResponseRedirect,HttpResponse
 from classroom import models
-from classroom.models import StudentsInClass,StudentMarks,ClassAssignment,SubmitAssignment,Student,Teacher,StudentActivity
+from classroom.models import *
 from django.contrib.auth.forms import PasswordChangeForm
 from django.db.models import Q
 from django.core.mail import send_mail
@@ -111,20 +111,20 @@ def user_logout(request):
 ## User Profile of student.
 class StudentDetailView(LoginRequiredMixin,DetailView):
     context_object_name = "student"
-    model = models.Student
+    model = Student
     template_name = 'classroom/student_detail_page.html'
 
 ## User Profile for teacher.
 class TeacherDetailView(LoginRequiredMixin,DetailView):
     context_object_name = "teacher"
-    model = models.Teacher
+    model = Teacher
     template_name = 'classroom/teacher_detail_page.html'
 
 ## Profile update for students.
 @login_required
 def StudentUpdateView(request,pk):
     profile_updated = False
-    student = get_object_or_404(models.Student,pk=pk)
+    student = get_object_or_404(Student,pk=pk)
     if request.method == "POST":
         form = StudentProfileUpdateForm(request.POST,instance=student)
         if form.is_valid():
@@ -141,7 +141,7 @@ def StudentUpdateView(request,pk):
 @login_required
 def TeacherUpdateView(request,pk):
     profile_updated = False
-    teacher = get_object_or_404(models.Teacher,pk=pk)
+    teacher = get_object_or_404(Teacher,pk=pk)
     if request.method == "POST":
         form = TeacherProfileUpdateForm(request.POST,instance=teacher)
         if form.is_valid():
@@ -177,13 +177,13 @@ def class_students_list(request):
     return render(request, template, context)
 
 class ClassStudentsListView(LoginRequiredMixin,DetailView):
-    model = models.Teacher
+    model = Teacher
     template_name = "classroom/class_students_list.html"
     context_object_name = "teacher"
 
 ## For Marks obtained by the student in all subjects.
 class StudentAllMarksList(LoginRequiredMixin,DetailView):
-    model = models.Student
+    model = Student
     template_name = "classroom/student_allmarks_list.html"
     context_object_name = "student"
 
@@ -191,7 +191,7 @@ class StudentAllMarksList(LoginRequiredMixin,DetailView):
 @login_required
 def add_marks(request,pk):
     marks_given = False
-    student = get_object_or_404(models.Student,pk=pk)
+    student = get_object_or_404(Student,pk=pk)
     if request.method == "POST":
         form = MarksForm(request.POST)
         if form.is_valid():
@@ -244,7 +244,7 @@ def add_notice(request):
 @login_required
 def write_message(request,pk):
     message_sent = False
-    teacher = get_object_or_404(models.Teacher,pk=pk)
+    teacher = get_object_or_404(Teacher,pk=pk)
 
     if request.method == "POST":
         form = MessageForm(request.POST)
@@ -261,20 +261,20 @@ def write_message(request,pk):
 ## For the list of all the messages teacher have received.
 @login_required
 def messages_list(request,pk):
-    teacher = get_object_or_404(models.Teacher,pk=pk)
+    teacher = get_object_or_404(Teacher,pk=pk)
     return render(request,'classroom/messages_list.html',{'teacher':teacher})
 
 ## Student can see all notice given by their teacher.
 @login_required
 def class_notice(request,pk):
-    student = get_object_or_404(models.Student,pk=pk)
+    student = get_object_or_404(Student,pk=pk)
     return render(request,'classroom/class_notice_list.html',{'student':student})
 
 ## To see the list of all the marks given by the techer to a specific student.
 @login_required
 def student_marks_list(request,pk):
     error = True
-    student = get_object_or_404(models.Student,pk=pk)
+    student = get_object_or_404(Student,pk=pk)
     teacher = request.user.Teacher
     given_marks = StudentMarks.objects.filter(teacher=teacher,student=student)
     return render(request,'classroom/student_marks_list.html',{'student':student,'given_marks':given_marks})
@@ -286,7 +286,7 @@ class add_student(LoginRequiredMixin,generic.RedirectView):
         return reverse('classroom:students_list')
 
     def get(self,request,*args,**kwargs):
-        student = get_object_or_404(models.Student,pk=self.kwargs.get('pk'))
+        student = get_object_or_404(Student,pk=self.kwargs.get('pk'))
 
         try:
             StudentsInClass.objects.create(teacher=self.request.user.Teacher,student=student)
@@ -545,15 +545,93 @@ def teacher_student_activity(request):
         return HttpResponse("Unauthorized", status=403)
 
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from .models import StudentActivity
+from datetime import datetime
 
 from django.shortcuts import render
-from .models import StudentActivity
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from datetime import datetime
+from .models import StudentActivity
 
+import google.generativeai as genai
+from datetime import datetime
+from django.db.models import Q
+from django.shortcuts import render
+from .models import StudentActivity, Student
+
+# Set your Gemini API Key
+genai.configure(api_key="AIzaSyCZlXZ1m18n374GZaZssWPnHnVZWb4D0DY")
+models = genai.list_models()
+for model in models:
+    print(model.name)
 @login_required
-def teacher_dashboard(request):
-    # if hasattr(request.user, 'role') and request.user.role == "teacher":
-        students_activities = StudentActivity.objects.all().order_by('-date')
-        return render(request, 'classroom/teacher_dashboard.html', {'students_activities': students_activities})
-    # else:
-    #     return render(request, 'classroom/not_allowed.html')  # Show error if not a teacher
+def student_progress_dashboard(request):
+    query = request.GET.get("q", "").strip()
+    date_query = request.GET.get("date", "").strip()
+
+    # Set default values
+    if not query:
+        query = "2201222CS"
+    if not date_query:
+        date_query = datetime.now().strftime('%Y-%m-%d')
+
+    # Convert date_query to a date object
+    selected_date = datetime.strptime(date_query, "%Y-%m-%d").date()
+
+    # Apply both filters correctly
+    students_activities = StudentActivity.objects.filter(
+        Q(student__roll_no__icontains=query) & Q(date=selected_date)
+    ).order_by('-date')
+    
+    student = Student.objects.all().filter(roll_no = query).first()
+    student_name = ""
+    if student:
+        student_name = student.name
+    print('name -------------',student_name)
+
+    # Create a structured list of student activities
+    student_activity_data = []
+
+    for activity in students_activities:
+        if hasattr(activity, 'time_spent') and activity.time_spent:
+            for page, time in activity.time_spent.items():
+                activity_data = {
+                "date": activity.date.strftime("%Y-%m-%d"),
+                "page": page,  # Using page directly
+                "time_spent": time
+                }
+            student_activity_data.append(activity_data)
+
+    prompt = f"""
+    Based on the following student activity data, classify the student's performance as 'Good', 'Average', or 'Poor'. if student is active on total page timing is more than 3600 seconds then average and if stuent timing is greater than 7200 seconds then good and if student timing is less than 3600  seconds then poor.
+    Consider factors like time spent on study-related pages (assignments, marks checking) vs. non-productive activities. and time is in seconds not in minutes and give answer in only Good, Average, Poor only not other words.
+
+    Data:
+    {student_activity_data}
+
+    Output in JSON format:
+    {{"performance": "Good" | "Average" | "Poor"}}
+    """
+
+    # Initialize Gemini model
+    model = genai.GenerativeModel("gemini-1.5-pro")  
+    
+    # Generate response
+    response = model.generate_content(prompt)
+    
+    # Extract prediction from response
+    try:
+        # Extract just the performance value from the JSON response
+        performance_prediction = response.text.strip('{}"\' ').split(':')[1].strip('"\' ').replace('"}',"")
+    except:
+        performance_prediction = "Unknown"
+    
+    return render(request, 'classroom/student_progress_dashboard.html', {
+        'students_activities': students_activities,
+        'student_name': student_name,
+        'performance_prediction': performance_prediction,
+    })
