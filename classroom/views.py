@@ -640,7 +640,23 @@ def student_progress_dashboard(request):
 
 @login_required
 def teacher_dashboard(request):
-    today_student_activity = StudentActivity.objects.filter(date=datetime.today())
+    date_query = request.GET.get("date", "").strip()
+
+    if not date_query:
+        date_query = datetime.now().strftime('%Y-%m-%d')
+    
+    print('--------------date_query--------------------',date_query)
+
+    # Convert date_query to a date object
+    selected_date = datetime.strptime(date_query, "%Y-%m-%d").date()
+ 
+    print('--------------selected_date--------------------',selected_date)
+
+    # Apply both filters correctly
+    today_student_activity = StudentActivity.objects.filter(
+        date=selected_date
+    ).order_by('-date')
+    
     print('--------------today_student_activity--------------------',today_student_activity)
     Rating = {}
     
@@ -659,5 +675,10 @@ def teacher_dashboard(request):
     
     print('---------rating------------',Rating)
 
-    return render(request, 'classroom/teacher_dashboard.html', {'today_student_activity': today_student_activity, 'Rating': Rating, 'total': len(Rating)})
+    
+    return render(request, 'classroom/teacher_dashboard.html', {
+        'today_student_activity': today_student_activity,
+        'Rating': Rating,
+        "selected_date": selected_date,
+    })
 

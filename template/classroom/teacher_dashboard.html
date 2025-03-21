@@ -1,5 +1,138 @@
-{% extends 'classroom/base.html' %}
-{% block content %}
+{% extends 'classroom/base.html' %} {% block content %}
 
-<p>HI</p>
+<div class="container">
+  <div class="row">
+    <ol class="col-12 breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item active">Teacher Dashboard</li>
+    </ol>
+  </div>
+
+  <div class="section-heading">
+    <h2>Students Activities</h2>
+    <div class="line-dec"></div>
+  </div>
+
+  {% if messages %}
+  <div class="alert alert-primary alert-dismissible fade show" role="alert">
+    {% for message in messages %}
+    <div
+      class="alert {% if message.tags %} alert-{{ message.tags }}{% endif %}"
+    >
+      {{ message|safe }}
+    </div>
+    {% endfor %}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endif %}
+  <!-- Search & Date Filter -->
+  <form
+    method="GET"
+    action="{% url 'classroom:teacher_dashboard' %}"
+    class="searchme"
+  >
+    <div class="input-group">
+      <input
+        class="form-control"
+        type="date"
+        name="date"
+        value="{{ request.GET.date }}"
+      />
+      <button
+        class="input-group-text lime lighten-2 btn-outline-success"
+        type="submit"
+      >
+        <i class="fas fa-search text-grey" aria-hidden="true"></i>
+      </button>
+      <input
+        type="submit"
+        value="Cancel"
+        class="btn btn-danger pull-right"
+        onclick="window.location.href='{% url 'classroom:teacher_dashboard' %}'; return false;"
+      />
+    </div>
+  </form>
+
+  {% if today_student_activity %}
+<div class="text-center my-3 d-flex justify-content-center">
+    <p class="mx-3"><strong>Good:</strong> <span id="totalGood">0</span></p>
+    <p class="mx-3"><strong>Average:</strong> <span id="totalAverage">0</span></p>
+    <p class="mx-3"><strong>Poor:</strong> <span id="totalPoor">0</span></p>
+</div>
+  <div>
+    <div style="display: flex; gap: 20px; justify-content: center; align-items: center; margin: 0px;">
+        <canvas id="ratingChart" class="chart-canvas" style="max-height: 600px; width: 40%; max-width: 600px;"></canvas>
+    <canvas id="ratingPieChart" class="chart-canvas" style="max-height: 600px; width: 40%; max-width: 600px;"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var ratingCounts = { Good: 0, Average: 0, Poor: 0 };
+
+      {% for roll_no, rating in Rating.items %}
+        ratingCounts["{{ rating }}"] += 1;
+      {% endfor %}
+
+      document.getElementById("totalGood").innerText = ratingCounts["Good"];
+      document.getElementById("totalAverage").innerText = ratingCounts["Average"];
+      document.getElementById("totalPoor").innerText = ratingCounts["Poor"];
+
+      var ratingLabels = Object.keys(ratingCounts);
+      var ratingValues = Object.values(ratingCounts);
+      var colors = ['#4CAF50', '#FFCE56', '#FF6384'];
+
+      new Chart(document.getElementById('ratingChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ratingLabels,
+          datasets: [{
+            label: 'Number of Students',
+            data: ratingValues,
+            backgroundColor: colors,
+            borderColor: ['#388E3C', '#FFA000', '#D32F2F'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Number of Students' }
+            },
+            x: {
+              title: { display: true, text: 'Performance Rating' }
+            }
+          }
+        }
+      });
+
+      new Chart(document.getElementById('ratingPieChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+          labels: ratingLabels,
+          datasets: [{
+            data: ratingValues,
+            backgroundColor: colors
+          }]
+        },
+        options: { responsive: true }
+      });
+    });
+
+    function resetForm() {
+      window.location.href = "{% url 'classroom:teacher_dashboard' %}";
+    }
+  </script>
+  </div>
+
+  
+  {% else %}
+  <p class="text-center">No student activity available.</p>
+  {% endif %}
+</div>
+
 {% endblock %}
