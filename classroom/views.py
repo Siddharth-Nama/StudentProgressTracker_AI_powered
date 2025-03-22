@@ -566,8 +566,7 @@ from .models import StudentActivity, Student
 # Set your Gemini API Key
 genai.configure(api_key="AIzaSyCZlXZ1m18n374GZaZssWPnHnVZWb4D0DY")
 models = genai.list_models()
-for model in models:
-    print(model.name)
+
 @login_required
 def student_progress_dashboard(request):
     query = request.GET.get("q", "").strip()
@@ -674,11 +673,43 @@ def teacher_dashboard(request):
             Rating[activity.student.roll_no] = rating  # Assign rating to student's roll_no
     
     print('---------rating------------',Rating)
+   
+    goodStudent = {}
+    averageStudent = {}
+    poorStudent = {}
+    for rat in Rating:
+        if(Rating[rat] == 'Good'):
+            goodStudent[rat] = Rating[rat]
+        elif(Rating[rat] == 'Average'):
+            averageStudent[rat] = Rating[rat]
+        else:
+            poorStudent[rat] = Rating[rat]
 
+    print('---------goodStudent------------',goodStudent)
+    print('---------averageStudent------------',averageStudent)
+    print('---------poorStudent------------',poorStudent)
     
-    return render(request, 'classroom/teacher_dashboard.html', {
+    
+    goodStudents = list(goodStudent.keys())
+    averageStudents = list(averageStudent.keys())
+    poorStudents = list(poorStudent.keys())
+    print('---------good_students_list------------',goodStudents)
+    print('---------average_students_list------------',averageStudents)   
+    print('---------poor_students_list------------',poorStudents)
+
+# Determine the maximum length for iteration
+    max_lengthe = max(len(goodStudents), len(averageStudents), len(poorStudents))
+    print('-------max--------', max_lengthe)
+    # Fill missing values with '-'
+    goodStudents += ['-'] * (max_lengthe - len(goodStudents))
+    averageStudents += ['-'] * (max_lengthe - len(averageStudents))
+    poorStudents += ['-'] * (max_lengthe - len(poorStudents))
+
+    student_data = zip(goodStudents, averageStudents, poorStudents)
+    return render(request, 'classroom/teacher_dashboard.html', {    
         'today_student_activity': today_student_activity,
         'Rating': Rating,
         "selected_date": selected_date,
+        "student_data": student_data,
+        "max_length": range(max_lengthe),  # Pass a range for iteration
     })
-
