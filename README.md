@@ -3,7 +3,7 @@
 
 The **Student Progress Tracker** is an intelligent system designed to track, analyze, and visualize student performance efficiently. Using **AI-powered insights**, this platform helps educators and students assess academic growth, identify weak areas, and improve learning outcomes.  
 
-📌 **Live Demo**: [Click Here](#)
+📌 **Live Demo**: [Click Here](https://siddprogresstracker.pythonanywhere.com/)
 
 ---
 
