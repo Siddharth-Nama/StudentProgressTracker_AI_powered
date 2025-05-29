@@ -612,7 +612,7 @@ def student_progress_dashboard(request):
     Data:
     {student_activity_data}
 
-    Output in JSON format:
+    Output in only this format:
     {{"performance": "Good" | "Average" | "Poor"}}
     """
 
