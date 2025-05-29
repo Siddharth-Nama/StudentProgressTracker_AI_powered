@@ -111,14 +111,16 @@ python manage.py runserver
 
 ## 📸 Screenshots  
 
-📌 **Student Dashboard**  
-🖼️ *(Attach Screenshot Here)*  
+📌 **Student Dashboard**   
+![Student Dashboard](static/images/s.png)  
 
 📌 **Teacher Performance Overview**  
-🖼️ *(Attach Screenshot Here)*  
+Track student attendance, evaluate progress, and manage classes efficiently.  
+![Teacher Overview](static/images/t.jpg)  
 
 📌 **AI-Generated Insights**  
-🖼️ *(Attach Screenshot Here)*  
+Understand students’ strengths and weaknesses through AI-powered suggestions.  
+![AI Insights](static/images/tt.jpg)  
 
 ---
 
